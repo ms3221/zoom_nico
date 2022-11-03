@@ -109,9 +109,10 @@ function handleChangeNickname(event){
   const changeNickname = room.querySelector("#changeNickname input");
   if(changeNickname.value !== nickName) {
   socket.emit("change_nickname",roomName, nickName, changeNickname.value, ()=>{
-    h4.innerText = `NickName ${changeNickname.value}`
+    h4.innerText = `NickName [${changeNickname.value}]`
     nickName = changeNickname.value;
   })
+  changeNickname.vlaue = ""
 }
 }
 
