@@ -112,7 +112,7 @@ function handleChangeNickname(event){
     h4.innerText = `NickName [${changeNickname.value}]`
     nickName = changeNickname.value;
   })
-  changeNickname.vlaue = ""
+  changeNickname.value = ""
 }
 }
 
