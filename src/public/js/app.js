@@ -48,9 +48,11 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
 const room = document.getElementById("room");
+const changeNickname = room.querySelector('#changeNickname')
 room.hidden = true;
 
 let roomName;
+let nickName;
 
 const backendDone = (msg) => {
   console.log(msg);
@@ -70,16 +72,18 @@ function handleNickNameSubmit(event) {
   event.preventDefault();
   const input = welcome.querySelector("#nickName");
   const value = input.value;
-  console.log(input.value);
   socket.emit("nickname", input.value);
   input.value = "";
+
 }
 
 function showRoom() {
   welcome.hidden = true;
   room.hidden = false;
-  const h3 = room.querySelector("h3");
-  h3.innerText = `Room ${roomName}`;
+  const h2 = room.querySelector("h2");
+  const h4 = room.querySelector("h4")
+  h2.innerText = `Room [${roomName}]`;
+  h4.innerText = `NickName [${nickName}]`;
   const messageForm = room.querySelector("#msg");
   messageForm.addEventListener(
     "submit",
@@ -95,7 +99,20 @@ function handleRoomSubmit(event) {
   socket.emit("nickname", nickname.value);
   socket.emit("enter_room", roomname.value, showRoom);
   roomName = roomname.value;
+  nickName = nickname.value
   roomname.value = "";
+}
+
+function handleChangeNickname(event){
+  event.preventDefault()
+  const h4 = room.querySelector("h4")
+  const changeNickname = room.querySelector("#changeNickname input");
+  if(changeNickname.value !== nickName) {
+  socket.emit("change_nickname",roomName, nickName, changeNickname.value, ()=>{
+    h4.innerText = `NickName ${changeNickname.value}`
+    nickName = changeNickname.value;
+  })
+}
 }
 
 function addMessage(message) {
@@ -106,6 +123,7 @@ function addMessage(message) {
 }
 
 form.addEventListener("submit", handleRoomSubmit);
+changeNickname.addEventListener("submit",handleChangeNickname)
 socket.on("welcome", (user, newCount) => {
   const h3 = room.querySelector("h3");
   h3.innerText = `Room ${roomName} (${newCount})`;
@@ -119,6 +137,10 @@ socket.on("bye", (left) => {
 socket.on("new_message", (msg) => {
   addMessage(msg);
 });
+
+socket.on("change_nickname",(msg)=>{
+  addMessage(msg)
+})
 
 socket.on("room_change", (rooms) => {
   const roomList = welcome.querySelector("ul");

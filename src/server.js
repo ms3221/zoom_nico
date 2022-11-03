@@ -67,6 +67,12 @@ wsServer.on("connection", (socket) => {
   socket.on("nickname", (nickname) => {
     socket["nickname"] = nickname;
   });
+  
+  socket.on("change_nickname", (roomName,orignalNickName, changeNickName, done)=>{
+    socket["nickname"] = changeNickName;
+    socket.to(roomName).emit("change_nickname", `${orignalNickName} chagne nickname to ${changeNickName}`);
+    done()
+  })
 });
 /**
  * 11/01 webSocket을 이용해서 real-time chat기능을 구현
