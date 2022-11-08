@@ -1,5 +1,12 @@
 const socket = io();
 
+/**
+ *  bug 수정 : 카메라를 변경했을때 작동하지 않는 문제가 있다 
+ *            핸드폰에서는 볼수가 없다. 
+ *            localtunnel을 사용하더라도 같은 wifi를 사용하지 않으면 화면을 볼 수 없다.
+ *  stun server은 어떤 것을 request하면 인터넷에서 네가 누군지를 알려주는 서버
+ */
+
 const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute")
 const cameraBtn = document.getElementById("camera")
@@ -80,6 +87,11 @@ function handleCameraClick(){
 
 async function handleCameraChange(){
 await getMedia(camerasSelect.value);
+if(myPeerConnection){
+    const videoTrack = myStream.getVideoTracks()[0]
+    const videoSender = myPeerConnection.getSenders().find(sender => sender.track.kind === "video")
+    videoSender.replaceTrack(videoTrack)
+}
 }
 muteBtn.addEventListener("click",handleMuteClick)
 cameraBtn.addEventListener("click",handleCameraClick)
@@ -140,10 +152,18 @@ socket.on("ice",(ice)=>{
 
 //RTC code 
 function makeConnection(){
-     myPeerConnection = new RTCPeerConnection();
+     myPeerConnection = new RTCPeerConnection(
+        {
+            iceServers: [{
+                urls: [
+                   "stun:stun.l.google.com:19302"
+                ]
+            }]
+        }
+     );
      myPeerConnection.addEventListener("icecandidate", handleIce);
      //myPeerConnection.addEventListener("addstream", handleAddStream)
-     
+
      // safari 용
      myPeerConnection.addEventListener("track", (data) => {
         const peerFace = document.getElementById("peerFace");
