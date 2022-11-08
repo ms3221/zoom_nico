@@ -142,7 +142,13 @@ socket.on("ice",(ice)=>{
 function makeConnection(){
      myPeerConnection = new RTCPeerConnection();
      myPeerConnection.addEventListener("icecandidate", handleIce);
-     myPeerConnection.addEventListener("addstream", handleAddStream)
+     //myPeerConnection.addEventListener("addstream", handleAddStream)
+     
+     // safari 용
+     myPeerConnection.addEventListener("track", (data) => {
+        const peerFace = document.getElementById("peerFace");
+        peerFace.srcObject = data.streams[0];
+        });
      myStream.getTracks().forEach(track=> myPeerConnection.addTrack(track, myStream));
 }
 
